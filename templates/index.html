@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Оценка иерархии интерфейса</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: Arial, sans-serif; background: #f0f2f5; }
+        .container { display: flex; max-width: 1200px; margin: 30px auto; gap: 20px; padding: 0 20px; flex-wrap: wrap; }
+        .card { background: white; border-radius: 10px; padding: 25px; flex: 1; min-width: 300px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        h2 { color: #1a73e8; text-align: center; margin-bottom: 15px; font-size: 18px; }
+        .subtitle { text-align: center; color: #555; margin-bottom: 15px; font-size: 14px; }
+        input[type="file"] { display: block; margin: 10px auto; font-size: 14px; }
+        .btn { display: block; width: 100%; padding: 12px; background: #1a73e8;
+               color: white; border: none; border-radius: 5px; cursor: pointer;
+               font-size: 15px; margin-top: 10px; }
+        .btn:hover { background: #1558b0; }
+        .btn-green { background: #28a745; }
+        .btn-green:hover { background: #1e7e34; }
+        .btn-purple { background: #6f42c1; }
+        .btn-purple:hover { background: #5a32a3; }
+        input[type="text"], textarea, select {
+            width: 100%; padding: 10px; border: 1px solid #ddd;
+            border-radius: 5px; font-size: 14px; margin-bottom: 10px;
+        }
+        textarea { height: 80px; resize: vertical; }
+        .url-result { margin-top: 15px; background: #f8f9fa; border-radius: 8px;
+                      padding: 15px; font-size: 13px; display: none; }
+        .url-result h3 { color: #1a73e8; margin-bottom: 8px; }
+        .url-result p { margin: 4px 0; color: #333; }
+        .crypto-result { margin-top: 15px; background: #f8f9fa; border-radius: 8px;
+                         padding: 15px; font-size: 13px; display: none; }
+        .crypto-result h3 { color: #6f42c1; margin-bottom: 8px; }
+        .crypto-result p { margin: 6px 0; color: #333; word-break: break-all; }
+        .label { font-size: 13px; color: #555; margin-bottom: 3px; }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <!-- 1. Сурет жүктеу -->
+    <div class="card">
+        <h2>Оценка иерархии интерфейса</h2>
+        <p class="subtitle">Загрузить изображение:</p>
+        <form method="POST" action="/upload" enctype="multipart/form-data">
+            <input type="file" name="file" accept="image/*">
+            <button type="submit" class="btn">Отправить</button>
+        </form>
+    </div>
+
+    <!-- 2. URL анализ -->
+    <div class="card">
+        <h2>Анализ URL:</h2>
+        <input type="text" id="urlInput" placeholder="https://example.com">
+        <button class="btn" onclick="analyzeUrl()">Анализировать</button>
+        <button class="btn btn-green" onclick="evaluateUrl()">Оценить</button>
+
+        <div class="url-result" id="urlAnalysisResult">
+            <h3>Результаты анализа URL:</h3>
+            <div id="urlAnalysisContent"></div>
+        </div>
+
+        <div class="url-result" id="urlEvalResult">
+            <h3>Результаты оценки сайта:</h3>
+            <div id="urlEvalContent"></div>
+        </div>
+    </div>
+
+    <!-- 3. Шифрлау -->
+    <div class="card">
+        <h2>Шифрование / Дешифрование</h2>
+
+        <p class="label">Введите текст:</p>
+        <textarea id="cryptoText" placeholder="Введите текст для шифрования..."></textarea>
+
+        <p class="label">Метод шифрования:</p>
+        <select id="cryptoMethod" onchange="updateKeyHint()">
+            <option value="caesar">Шифр Цезаря</option>
+            <option value="aes">AES шифрование</option>
+            <option value="base64">Base64</option>
+        </select>
+
+        <p class="label" id="keyLabel">Ключ (сдвиг 1-25):</p>
+        <input type="text" id="cryptoKey" placeholder="Например: 3">
+
+        <button class="btn btn-purple" onclick="encryptText()">Зашифровать / Дешифровать</button>
+
+        <div class="crypto-result" id="cryptoResult">
+            <h3>Результат шифрования:</h3>
+            <div id="cryptoContent"></div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+function analyzeUrl() {
+    const url = document.getElementById('urlInput').value;
+    const formData = new FormData();
+    formData.append('url', url);
+    fetch('/analyze_url', { method: 'POST', body: formData })
+    .then(r => r.json())
+    .then(data => {
+        const box = document.getElementById('urlAnalysisResult');
+        const content = document.getElementById('urlAnalysisContent');
+        box.style.display = 'block';
+        if (data.error) {
+            content.innerHTML = `<p style="color:red">${data.error}</p>`;
+        } else {
+            content.innerHTML = `
+                <p>URL: ${data.url}</p>
+                <p>Количество ссылок на сайте: ${data.page_count}</p>
+                <p>Страна: ${data.country}</p>
+                <p>Протоколы: ${data.protocols}</p>
+                <p>IP-адрес: ${data.ip}</p>
+                <p>Статус: ${data.status}</p>
+            `;
+        }
+    });
+}
+
+function evaluateUrl() {
+    const url = document.getElementById('urlInput').value;
+    const formData = new FormData();
+    formData.append('url', url);
+    fetch('/evaluate_url', { method: 'POST', body: formData })
+    .then(r => r.json())
+    .then(data => {
+        const box = document.getElementById('urlEvalResult');
+        const content = document.getElementById('urlEvalContent');
+        box.style.display = 'block';
+        if (data.error) {
+            content.innerHTML = `<p style="color:red">${data.error}</p>`;
+        } else {
+            let html = '';
+            for (const [key, val] of Object.entries(data.metrics)) {
+                html += `<p>${key}: ${val}</p>`;
+            }
+            content.innerHTML = html;
+        }
+    });
+}
+
+function updateKeyHint() {
+    const method = document.getElementById('cryptoMethod').value;
+    const label = document.getElementById('keyLabel');
+    const keyInput = document.getElementById('cryptoKey');
+    if (method === 'caesar') {
+        label.textContent = 'Ключ (сдвиг 1-25):';
+        keyInput.placeholder = 'Например: 3';
+        keyInput.style.display = 'block';
+    } else if (method === 'aes') {
+        label.textContent = 'Ключ (любое слово):';
+        keyInput.placeholder = 'Например: mysecretkey';
+        keyInput.style.display = 'block';
+    } else {
+        label.textContent = 'Ключ не нужен для Base64';
+        keyInput.placeholder = '';
+        keyInput.style.display = 'none';
+    }
+}
+
+function encryptText() {
+    const text = document.getElementById('cryptoText').value;
+    const method = document.getElementById('cryptoMethod').value;
+    const key = document.getElementById('cryptoKey').value;
+
+    if (!text) {
+        alert('Введите текст!');
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('text', text);
+    formData.append('method', method);
+    formData.append('key', key);
+
+    fetch('/encrypt', { method: 'POST', body: formData })
+    .then(r => r.json())
+    .then(data => {
+        const box = document.getElementById('cryptoResult');
+        const content = document.getElementById('cryptoContent');
+        box.style.display = 'block';
+        if (data.error) {
+            content.innerHTML = `<p style="color:red">${data.error}</p>`;
+        } else {
+            content.innerHTML = `
+                <p><b>Метод:</b> ${data.method}</p>
+                <p><b>Ключ:</b> ${data.key}</p>
+                <p><b>Оригинал:</b> ${data.original}</p>
+                <p><b>Зашифрованный:</b> ${data.encrypted}</p>
+                <p><b>Дешифрованный:</b> ${data.decrypted}</p>
+            `;
+        }
+    });
+}
+</script>
+</body>
+</html>
