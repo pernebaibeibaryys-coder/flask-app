@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Результат</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: Arial, sans-serif; background: #f0f2f5; }
+        .container { max-width: 960px; margin: 30px auto; padding: 0 20px; }
+        .card { background: white; border-radius: 10px; padding: 25px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        h2 { color: #1a73e8; text-align: center; margin-bottom: 5px; font-size: 20px; }
+        .subtitle { text-align: center; color: #555; font-size: 14px; margin-bottom: 15px; }
+        .upload-row { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
+        .upload-row input[type="file"] { flex: 1; padding: 6px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px; }
+        .btn-send { padding: 10px 20px; background: #1a73e8; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; width: 100%; margin-top: 8px; }
+        .btn-send:hover { background: #1558b0; }
+        .result-section { border: 1px solid #e0e0e0; border-radius: 8px; padding: 20px; margin-top: 10px; }
+        .result-title { color: #1a73e8; font-weight: bold; font-size: 16px; margin-bottom: 15px; }
+        .images-row { display: flex; gap: 20px; margin-bottom: 15px; }
+        .img-box { flex: 1; text-align: center; }
+        .img-box p { font-size: 13px; color: #555; margin-bottom: 8px; }
+        .img-box img { width: 100%; max-height: 220px; object-fit: contain; border: 1px solid #ddd; border-radius: 5px; }
+        .metrics { font-size: 14px; color: #333; line-height: 2; }
+        .btn-back { display: inline-block; margin-top: 20px; padding: 10px 25px; background: #1a73e8; color: white; border-radius: 5px; text-decoration: none; font-size: 14px; }
+        .btn-back:hover { background: #1558b0; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="card">
+        <h2>Оценка иерархии интерфейса</h2>
+        <p class="subtitle">Загрузить изображение:</p>
+
+        <form method="POST" action="/upload" enctype="multipart/form-data">
+            <input type="file" name="file" accept="image/*">
+            <button type="submit" class="btn-send">Отправить</button>
+        </form>
+
+        <div class="result-section">
+            <p class="result-title">Результат:</p>
+            <div class="images-row">
+                <div class="img-box">
+                    <p>Оригинальное изображение:</p>
+                    <img src="/uploads/{{ original_image }}" alt="Original">
+                </div>
+                <div class="img-box">
+                    <p>Обработанное изображение:</p>
+                    <img src="/{{ processed_image }}" alt="Processed">
+                </div>
+            </div>
+            <div class="metrics">
+                <p>Плотность: {{ density }}</p>
+                <p>Выравнивание: {{ alignment }}</p>
+                <p>Визуальность: {{ visual }}</p>
+                <p>Прогноз: {{ prognoz }}</p>
+            </div>
+        </div>
+
+        <a href="/" class="btn-back">← Назад</a>
+    </div>
+</div>
+</body>
+</html>
